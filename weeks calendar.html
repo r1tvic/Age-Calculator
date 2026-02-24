@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weeks I Have Left To Live</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        /* Controls Panel */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .controls input, .controls button {
+            font-family: inherit;
+            font-size: 14px;
+            padding: 8px 12px;
+            border: 1px solid #000;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: max-content;
+        }
+
+        h1 {
+            font-size: 24px;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .years-title-container {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        /* Vertical YEARS label */
+        .years-title {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-align: center;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* WEEKS title aligned above the circles */
+        .weeks-header-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        
+        .spacer {
+            width: 40px;
+            padding-right: 4px;
+            box-sizing: border-box;
+        }
+
+        .weeks-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 4px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .year-label {
+            width: 40px; 
+            font-size: 10px;
+            text-align: right;
+            padding-right: 4px;
+            box-sizing: border-box;
+        }
+
+        .week-number {
+            width: 14px; 
+            font-size: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Downward-facing hyphen using a border so it always prints */
+        .week-number::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 5px;
+            border-left: 1px solid #000000;
+            margin-top: 2px;
+        }
+
+        .circle {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid #000000;
+            box-sizing: border-box;
+        }
+
+        .circle.filled {
+            background-color: #000000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Stats Display Area */
+        .stats-container {
+            margin-top: 40px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-align: center;
+            line-height: 2;
+            text-transform: uppercase;
+        }
+
+        /* Print Styles */
+        @media print {
+            .controls {
+                display: none;
+            }
+            body {
+                padding: 0;
+                margin: 0;
+                align-items: center; 
+            }
+            @page {
+                margin: 0.5in; 
+                size: portrait;
+            }
+            
+            h1 {
+                font-size: 18px;
+                margin-bottom: 20px;
+            }
+            .weeks-title, .years-title {
+                font-size: 10px;
+                letter-spacing: 2px;
+            }
+
+            .grid-container, .row {
+                gap: 2px;
+            }
+
+            .circle {
+                width: 10px;
+                height: 10px;
+                border: 1px solid #000000 !important;
+            }
+
+            .week-number {
+                width: 10px;
+                font-size: 6px;
+            }
+            .week-number::after {
+                height: 3px;
+                margin-top: 1px;
+            }
+            
+            .year-label {
+                width: 30px;
+                font-size: 8px;
+                padding-right: 2px;
+            }
+            .spacer {
+                width: 30px;
+                padding-right: 2px;
+            }
+
+            .stats-container {
+                font-size: 10px;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <label for="dob">Start Date:</label>
+        <input type="date" id="dob" value="2005-07-15">
+        <button onclick="updateGrid()">Generate</button>
+        <button onclick="window.print()">Print Grid</button>
+    </div>
+
+    <div class="container">
+        <h1>Weeks I Have Left To Live</h1>
+        
+        <div class="main-content">
+            <div class="years-title-container">
+                <div class="years-title">YEARS</div>
+            </div>
+
+            <div class="grid-container" id="grid">
+                <div class="weeks-header-row">
+                    <div class="spacer"></div>
+                    <div class="weeks-title">WEEKS</div>
+                </div>
+
+                <div class="row" id="week-labels-row">
+                    <div class="year-label"></div> </div>
+
+                <div id="grid-content">
+                    </div>
+            </div>
+        </div>
+
+        <div class="stats-container" id="stats">
+            </div>
+    </div>
+
+    <script>
+        const totalYears = 75;
+        const weeksInYear = 52;
+        let statsInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Generate the static week numbers (1 to 52)
+            const weekLabelsRow = document.getElementById('week-labels-row');
+            for (let w = 1; w <= weeksInYear; w++) {
+                const label = document.createElement('div');
+                label.className = 'week-number';
+                label.textContent = w;
+                weekLabelsRow.appendChild(label);
+            }
+
+            // Initialize the grid and stats
+            updateGrid();
+        });
+
+        function updateGrid() {
+            const dobInput = document.getElementById('dob').value;
+            if (!dobInput) return;
+
+            const gridContent = document.getElementById('grid-content');
+            gridContent.innerHTML = ''; // Clear existing grid
+
+            const startDate = new Date(dobInput);
+            startDate.setHours(0, 0, 0, 0); 
+            
+            const currentDate = new Date(); 
+            currentDate.setHours(0, 0, 0, 0);
+
+            // Calculate completed weeks for the grid
+            const diffInMsGrid = currentDate - startDate;
+            const msInDay = 1000 * 60 * 60 * 24;
+            const diffInDays = Math.floor(diffInMsGrid / msInDay);
+            const completedWeeks = diffInDays >= 0 ? Math.floor(diffInDays / 7) : 0;
+
+            let currentBlockCount = 0;
+
+            for (let y = 0; y < totalYears; y++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+
+                // Year Number (0- to 74-)
+                const yearLabel = document.createElement('div');
+                yearLabel.className = 'year-label';
+                yearLabel.textContent = y + '-';
+                row.appendChild(yearLabel);
+
+                // Week Circles
+                for (let w = 1; w <= weeksInYear; w++) {
+                    const circle = document.createElement('div');
+                    circle.className = 'circle';
+                    
+                    if (currentBlockCount < completedWeeks) {
+                        circle.classList.add('filled');
+                    }
+                    
+                    row.appendChild(circle);
+                    currentBlockCount++;
+                }
+
+                gridContent.appendChild(row);
+            }
+
+            // Restart the live stats tracker based on the new date
+            if (statsInterval) clearInterval(statsInterval);
+            
+            // We pass the true start date without zeroing the hours so the decimal is accurate down to the current second
+            const exactStartDate = new Date(dobInput);
+            updateStatsText(exactStartDate); 
+            statsInterval = setInterval(() => updateStatsText(exactStartDate), 1000);
+        }
+
+        function updateStatsText(startDate) {
+            const now = new Date();
+            const msLived = now - startDate;
+
+            if (msLived < 0) {
+                document.getElementById('stats').innerHTML = "Future date selected.";
+                return;
+            }
+
+            // Time constants in milliseconds
+            const msInSecond = 1000;
+            const msInMinute = msInSecond * 60;
+            const msInHour = msInMinute * 60;
+            const msInDay = msInHour * 24;
+            const msInWeek = msInDay * 7;
+            const msInYear = msInDay * 365.25; // Accounting for leap years
+            const msInMonth = msInYear / 12;
+
+            // Formatting functions for numbers
+            const formatDecimal = (num) => num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formatWhole = (num) => num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+            // Calculate exact decimal/whole values and format with commas
+            const years = formatDecimal(msLived / msInYear);
+            const months = formatDecimal(msLived / msInMonth);
+            const weeks = formatDecimal(msLived / msInWeek);
+            const days = formatDecimal(msLived / msInDay);
+            const hours = formatDecimal(msLived / msInHour);
+            const minutes = formatWhole(Math.floor(msLived / msInMinute));
+            const seconds = formatWhole(Math.floor(msLived / msInSecond));
+
+            // Format current date visually
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedCurrentDate = now.toLocaleDateString('en-US', dateOptions);
+
+            const statsHtml = `
+                ${years} years lived or <br>
+                ${months} months lived or <br>
+                ${weeks} weeks lived or <br>
+                ${days} days lived or <br>
+                ${hours} hours lived or <br>
+                ${minutes} minutes lived or <br>
+                ${seconds} seconds lived <br>
+                <br>
+                Current Date: ${formattedCurrentDate}
+            `;
+
+            document.getElementById('stats').innerHTML = statsHtml;
+        }
+    </script>
+</body>
+</html>
